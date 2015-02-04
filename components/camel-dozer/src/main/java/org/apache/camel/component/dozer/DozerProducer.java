@@ -48,20 +48,23 @@ public class DozerProducer extends DefaultProducer {
     public void process(Exchange exchange) throws Exception {  
         // Unmarshal the source content only if an unmarshaller is configured.
         if (endpoint.getConfiguration().getUnmarshalId() != null) {
-            resolveUnmarshaller(exchange, endpoint.getConfiguration().getUnmarshalId()).process(exchange);
+            resolveUnmarshaller(exchange, endpoint.getConfiguration().getUnmarshalId())
+                .process(exchange);
         }
         
         // Load the target model class and convert the body to that type to 
         // trigger the Dozer mapping.
         Class<?> targetModel = Class.forName(endpoint.getConfiguration().getTargetModel());
-        Object sourceObject = exchange.hasOut() ? exchange.getOut().getBody() : exchange.getIn().getBody();
+        Object sourceObject = exchange.hasOut() 
+                ? exchange.getOut().getBody() : exchange.getIn().getBody();
         Object targetObject = endpoint.getMapper().map(sourceObject, targetModel);
         endpoint.getMapper().map(literalMapper, targetObject);
         exchange.getIn().setBody(targetObject);
         
         // Marshal the source content only if a marshaller is configured.
         if (endpoint.getConfiguration().getMarshalId() != null) {
-            resolveMarshaller(exchange, endpoint.getConfiguration().getMarshalId()).process(exchange);
+            resolveMarshaller(exchange, endpoint.getConfiguration().getMarshalId())
+                .process(exchange);
         }
     }
     
@@ -133,7 +136,6 @@ public class DozerProducer extends DefaultProducer {
                 ((CamelContextAware)marshaller).setCamelContext(exchange.getContext());
             }
             marshaller.start();
-            marshaller.process(exchange);
         }
         return marshaller;
     }
