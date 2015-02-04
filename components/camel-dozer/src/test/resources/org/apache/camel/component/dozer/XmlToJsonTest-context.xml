@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:camel="http://camel.apache.org/schema/spring" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd        http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+   <!-- Camel route -->
+   <camelContext xmlns="http://camel.apache.org/schema/spring">
+    <endpoint uri="dozer:xml2json?mappingFile=org/apache/camel/component/dozer/dozerBeanMapping.xml&amp;marshalId=myjson&amp;unmarshalId=myjaxb&amp;targetModel=org.apache.camel.component.dozer.example.xyz.XYZOrder" id="xml2json"/>
+    <dataFormats>
+        <json library="Jackson" id="myjson"/>
+        <jaxb contextPath="org.apache.camel.component.dozer.example.abc" id="myjaxb"/>
+    </dataFormats>
+    <route>
+        <from uri="direct:start"/>
+        <to ref="xml2json"/>
+        <to uri="mock:result"/>
+    </route>
+</camelContext>
+</beans>
