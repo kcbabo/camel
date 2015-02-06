@@ -16,31 +16,22 @@
  */
 package org.apache.camel.component.dozer;
 
-import org.dozer.ConfigurableCustomConverter;
-
-public class LiteralMapper implements ConfigurableCustomConverter {
+public class LiteralMapper extends BaseConverter {
     
-    private String literal;
     
     @Override
     public Object convert(Object existingDestinationFieldValue, 
             Object sourceFieldValue, 
             Class<?> destinationClass,
             Class<?> sourceClass) {
-        return literal;
+        try {
+            return getParameter();
+        } finally {
+            done();
+        }
     }
     
     public String getLiteral() {
-        return literal;
+        return getParameter();
     }
-
-    public void setLiteral(String literal) {
-        this.literal = literal;
-    }
-
-    @Override
-    public void setParameter(String parameter) {
-        literal = parameter;
-    }
-
 }

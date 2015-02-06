@@ -14,18 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.component.dozer.example;
+package org.apache.camel.component.dozer;
 
-/**
- * Custom mapping class with multiple operations.
- */
-public class CustomMapperOperations {
+import org.dozer.ConfigurableCustomConverter;
 
-    public Object custom1(String source) {
-        return "custom1:" + source.toString();
+public abstract class BaseConverter implements ConfigurableCustomConverter {
+    
+    private ThreadLocal<String> localParameter = new ThreadLocal<String>();
+    
+    @Override
+    public void setParameter(String parameter) {
+        localParameter.set(parameter);
     }
     
-    public Object custom2(String source) {
-        return "custom2:" + source.toString();
+    public void done() {
+        localParameter.set(null);
+    }
+    
+    public String getParameter() {
+        return localParameter.get();
     }
 }

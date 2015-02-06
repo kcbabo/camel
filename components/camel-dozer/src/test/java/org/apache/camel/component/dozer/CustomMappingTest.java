@@ -51,7 +51,7 @@ public class CustomMappingTest {
     }
     
     @Test
-    public void testLiteralMapping() throws Exception {
+    public void testCustomMapping() throws Exception {
         resultEndpoint.expectedMessageCount(1);
         ABCOrder abcOrder = new ABCOrder();
         abcOrder.setHeader(new Header());

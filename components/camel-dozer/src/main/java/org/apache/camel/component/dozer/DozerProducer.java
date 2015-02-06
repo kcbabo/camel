@@ -31,7 +31,6 @@ public class DozerProducer extends DefaultProducer {
     private DozerEndpoint endpoint;
     private UnmarshalProcessor unmarshaller;
     private MarshalProcessor marshaller;
-    private LiteralMapper literalMapper;
 
     /**
      * Create a new producer for transform endpoints.
@@ -40,8 +39,6 @@ public class DozerProducer extends DefaultProducer {
     public DozerProducer(DozerEndpoint endpoint) {
         super(endpoint);
         this.endpoint = endpoint;
-        literalMapper = new LiteralMapper();
-        literalMapper.setLiteral("");
     }
 
     @Override
@@ -54,11 +51,12 @@ public class DozerProducer extends DefaultProducer {
         
         // Load the target model class and convert the body to that type to 
         // trigger the Dozer mapping.
-        Class<?> targetModel = Class.forName(endpoint.getConfiguration().getTargetModel());
+        Class<?> targetModel = endpoint.getCamelContext().getClassResolver().resolveClass(
+                endpoint.getConfiguration().getTargetModel());
         Object sourceObject = exchange.hasOut() 
                 ? exchange.getOut().getBody() : exchange.getIn().getBody();
         Object targetObject = endpoint.getMapper().map(sourceObject, targetModel);
-        endpoint.getMapper().map(literalMapper, targetObject);
+        endpoint.getMapper().map(endpoint.getLiteralMapper(), targetObject);
         exchange.getIn().setBody(targetObject);
         
         // Marshal the source content only if a marshaller is configured.

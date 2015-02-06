@@ -18,56 +18,44 @@ package org.apache.camel.component.dozer;
 
 import java.lang.reflect.Method;
 
-import org.dozer.ConfigurableCustomConverter;
+import org.apache.camel.spi.ClassResolver;
 
-public class CustomMapper implements ConfigurableCustomConverter {
+public class CustomMapper extends BaseConverter {
     
-    private String mappingClass;
-    private String mappingOperation;
+    private ClassResolver resolver;
+    
+    public CustomMapper(ClassResolver resolver) {
+        this.resolver = resolver;
+    }
     
     @Override
     public Object convert(Object existingDestinationFieldValue, 
             Object sourceFieldValue, 
             Class<?> destinationClass,
             Class<?> sourceClass) {
-        return mapCustom(sourceFieldValue);
-    }
-    
-    public String getMappingClass() {
-        return mappingClass;
-    }
-
-    public void setMappingClass(String mappingClass) {
-        this.mappingClass = mappingClass;
-    }
-    
-    public String getMappingOperation() {
-        return mappingOperation;
-    }
-
-    public void setMappingOperation(String mappingOperation) {
-        this.mappingOperation = mappingOperation;
-    }
-
-    @Override
-    public void setParameter(String parameter) {
-        String[] params = parameter.split(",");
-        mappingClass = params[0];
-        mappingOperation = params.length > 1 ? params[1] : null;
+        try {
+            return mapCustom(sourceFieldValue);
+        } finally {
+            done();
+        }
     }
 
     private Object mapCustom(Object source) {
-        Class<?> customClass;
         Object customMapObj;
         Method mapMethod = null;
         
+        // The converter parameter is stored in a thread local variable, so 
+        // we need to parse the parameter on each invocation
+        String[] params = getParameter().split(",");
+        String className = params[0];
+        String operation = params.length > 1 ? params[1] : null;
+        
         try {
-            customClass = Class.forName(mappingClass);
+            Class<?> customClass = resolver.resolveClass(className);
             customMapObj = customClass.newInstance();
-             
             // If a specific mapping operation has been supplied use that
-            if (mappingOperation != null) {
-                mapMethod = customClass.getMethod(mappingOperation, source.getClass());
+            if (operation != null) {
+                mapMethod = customClass.getMethod(operation, source.getClass());
             } else {
                 for (Method m : customClass.getMethods()) {
                     if (m.getReturnType() != null && m.getParameterTypes().length == 1) {
@@ -82,7 +70,7 @@ public class CustomMapper implements ConfigurableCustomConverter {
         
         // Verify that we found a matching method
         if (mapMethod == null) {
-            throw new RuntimeException("No eligible custom mapping methods in " + mappingClass);
+            throw new RuntimeException("No eligible custom mapping methods in " + className);
         }
         
         // Invoke the custom mapping method
