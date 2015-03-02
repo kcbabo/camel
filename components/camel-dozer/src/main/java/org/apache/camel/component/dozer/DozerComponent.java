@@ -30,8 +30,6 @@ import org.slf4j.LoggerFactory;
 
 public class DozerComponent extends UriEndpointComponent {
     
-    public static final String CONTEXT_ID = "CamelDozerContextId";
-    
     private static final Logger LOG = LoggerFactory.getLogger(DozerComponent.class);
 
     public DozerComponent() {

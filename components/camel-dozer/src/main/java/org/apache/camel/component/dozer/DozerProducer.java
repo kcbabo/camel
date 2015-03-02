@@ -74,18 +74,9 @@ public class DozerProducer extends DefaultProducer {
             msg.setBody(msg.getBody(sourceModel));
         }
         
-        // Check to see if there a mapping context specified in the message or endpoint
-        String contextId = msg.getHeader(DozerComponent.CONTEXT_ID, 
-                endpoint.getConfiguration().getContextId(), String.class);
-        
         // Perform mappings
         LOG.debug("Mapping to target model {}.", targetModel.getName());
-        Object targetObject;
-        if (contextId != null) {
-            targetObject = endpoint.getMapper().map(msg.getBody(), targetModel, contextId);
-        } else {
-            targetObject = endpoint.getMapper().map(msg.getBody(), targetModel);
-        }
+        Object targetObject = endpoint.getMapper().map(msg.getBody(), targetModel);
         // Second pass to process literal mappings
         endpoint.getMapper().map(endpoint.getLiteralMapper(), targetObject);
         // Third pass to process expression mappings
