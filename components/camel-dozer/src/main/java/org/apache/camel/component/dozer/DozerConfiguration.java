@@ -37,10 +37,14 @@ public class DozerConfiguration {
     private String unmarshalId;
     @UriParam
     private String sourceModel;
-    @UriParam
+    @UriParam @Metadata(required = "true")
     private String targetModel;
     @UriParam(defaultValue = DEFAULT_MAPPING_FILE)
     private String mappingFile;
+    @UriParam
+    private String mappingBean;
+    @UriParam
+    private String contextId;
     
     public DozerConfiguration() {
         setMappingFile(DEFAULT_MAPPING_FILE);
@@ -92,5 +96,21 @@ public class DozerConfiguration {
 
     public void setMappingFile(String mappingFile) {
         this.mappingFile = mappingFile;
+    }
+    
+    public String getMappingBean() {
+        return mappingBean;
+    }
+
+    public void setMappingBean(String mappingBean) {
+        this.mappingBean = mappingBean;
+    }
+
+    public String getContextId() {
+        return contextId;
+    }
+
+    public void setContextId(String contextId) {
+        this.contextId = contextId;
     }
 }

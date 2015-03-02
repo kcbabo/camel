@@ -58,14 +58,35 @@ public class DozerProducer extends DefaultProducer {
         // Load the target model class
         Class<?> targetModel = endpoint.getCamelContext().getClassResolver().resolveClass(
                 endpoint.getConfiguration().getTargetModel());
-        // If an unmarshaller was used, the unmarshalled message is the OUT
-        // message.
+        
+        // If an unmarshaller was used, the unmarshalled message is the OUT message.
         Message msg = exchange.hasOut() ? exchange.getOut() : exchange.getIn();
+        
+        // Convert to source model, if specified
+        String sourceType = endpoint.getConfiguration().getSourceModel();
+        if (sourceType != null) {
+            LOG.debug("Converting to source model {}.", sourceType);
+            Class<?> sourceModel = endpoint.getCamelContext()
+                    .getClassResolver().resolveClass(sourceType);
+            msg.setBody(msg.getBody(sourceModel));
+        }
+        
+        // Check to see if there a mapping context specified in the message or endpoint
+        String contextId = msg.getHeader(DozerComponent.CONTEXT_ID, 
+                endpoint.getConfiguration().getContextId(), String.class);
+        
+        // Perform mappings
         LOG.debug("Mapping to target model {}.", targetModel.getName());
-        // Trigger the Dozer mapping and set that as the content of the IN message
-        Object targetObject = endpoint.getMapper().map(msg.getBody(), targetModel);
+        Object targetObject;
+        if (contextId != null) {
+            targetObject = endpoint.getMapper().map(msg.getBody(), targetModel, contextId);
+        } else {
+            targetObject = endpoint.getMapper().map(msg.getBody(), targetModel);
+        }
         // Second pass to process literal mappings
         endpoint.getMapper().map(endpoint.getLiteralMapper(), targetObject);
+        // Third pass to process expression mappings
+        endpoint.getMapper().map(endpoint.getExpressionMapper(), targetObject);
         msg.setBody(targetObject);
         exchange.setIn(msg);
         

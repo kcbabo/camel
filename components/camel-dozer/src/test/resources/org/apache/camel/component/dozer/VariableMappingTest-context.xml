@@ -19,7 +19,7 @@
 
    <!-- Camel route -->
    <camelContext xmlns="http://camel.apache.org/schema/spring">
-    <endpoint uri="dozer:java2java?mappingFile=org/apache/camel/component/dozer/literalMapping.xml&amp;targetModel=org.apache.camel.component.dozer.example.xyz.XYZOrder" id="java2java"/>
+    <endpoint uri="dozer:java2java?mappingFile=org/apache/camel/component/dozer/variableMapping.xml&amp;targetModel=org.apache.camel.component.dozer.example.xyz.XYZOrder" id="java2java"/>
     <route>
         <from uri="direct:start"/>
         <to ref="java2java"/>
