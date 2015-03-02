@@ -43,8 +43,8 @@ public class ExpressionMapper extends BaseConverter {
             }
             // Resolve the language being used for this expression and evaluate
             Exchange exchange = currentExchange.get();
-            Language expLang = exchange.getContext().resolveLanguage(getLanguage());
-            Expression exp = expLang.createExpression(getExpression());
+            Language expLang = exchange.getContext().resolveLanguage(getLanguagePart());
+            Expression exp = expLang.createExpression(getExpressionPart());
             return exp.evaluate(exchange, destinationClass);
         } finally {
             done();
@@ -55,13 +55,20 @@ public class ExpressionMapper extends BaseConverter {
      * Used as the source field for Dozer mappings. 
      */
     public String getExpression() {
+        return getParameter();
+    }
+    
+    /**
+     * The actual expression, without the language prefix.
+     */
+    public String getExpressionPart() {
         return getParameter().substring(getParameter().indexOf(":") + 1);
     }
     
     /**
      * The expression language used for this mapping.
      */
-    public String getLanguage() {
+    public String getLanguagePart() {
         return getParameter().substring(0, getParameter().indexOf(":"));
     }
     

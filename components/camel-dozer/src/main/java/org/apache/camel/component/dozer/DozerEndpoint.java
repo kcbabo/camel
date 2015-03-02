@@ -24,7 +24,6 @@ import org.apache.camel.Component;
 import org.apache.camel.Consumer;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
-import org.apache.camel.converter.dozer.DozerBeanMapperConfiguration;
 import org.apache.camel.converter.dozer.DozerTypeConverterLoader;
 import org.apache.camel.impl.DefaultEndpoint;
 import org.apache.camel.spi.UriEndpoint;
@@ -105,11 +104,9 @@ public class DozerEndpoint extends DefaultEndpoint {
         super.doStart();
 
         if (mapper == null) {
-            if (configuration.getMappingBean() != null) {
-                DozerBeanMapperConfiguration configBean = 
-                        getCamelContext().getRegistry().lookupByNameAndType(
-                                configuration.getMappingBean(), DozerBeanMapperConfiguration.class);
-                mapper = DozerTypeConverterLoader.createDozerBeanMapper(configBean);
+            if (configuration.getMappingConfiguration() != null) {
+                mapper = DozerTypeConverterLoader.createDozerBeanMapper(
+                        configuration.getMappingConfiguration());
             } else {
                 mapper = createDozerBeanMapper();
             }

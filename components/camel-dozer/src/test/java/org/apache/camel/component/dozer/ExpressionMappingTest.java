@@ -21,7 +21,6 @@ import org.apache.camel.EndpointInject;
 import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.component.dozer.example.abc.ABCOrder;
-import org.apache.camel.component.dozer.example.abc.ABCOrder.Header;
 import org.apache.camel.component.dozer.example.xyz.XYZOrder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.junit.After;
@@ -34,7 +33,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
-public class VariableMappingTest {
+public class ExpressionMappingTest {
     
     @EndpointInject(uri = "mock:result")
     private MockEndpoint resultEndpoint;
@@ -51,17 +50,16 @@ public class VariableMappingTest {
     }
     
     @Test
-    public void testLiteralMapping() throws Exception {
+    public void testExpressionMapping() throws Exception {
         resultEndpoint.expectedMessageCount(1);
+        final String headerName = "customerNumber";
+        final String headerVal = "CAFE-123";
         ABCOrder abcOrder = new ABCOrder();
-        abcOrder.setHeader(new Header());
-        abcOrder.getHeader().setStatus("GOLD");
-        startEndpoint.sendBody(abcOrder);
+        // Header value should be mapped to custId in target model
+        startEndpoint.sendBodyAndHeader(abcOrder, headerName, headerVal);
         // check results
         resultEndpoint.assertIsSatisfied();
         XYZOrder result = resultEndpoint.getExchanges().get(0).getIn().getBody(XYZOrder.class);
-        Assert.assertEquals(result.getPriority(), "GOLD");
-        Assert.assertEquals("ACME-SALES", result.getCustId());
-        Assert.assertEquals("W123-EG", result.getOrderId());
+        Assert.assertEquals(headerVal, result.getCustId());
     }
 }

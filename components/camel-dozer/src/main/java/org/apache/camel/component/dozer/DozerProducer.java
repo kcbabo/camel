@@ -68,6 +68,9 @@ public class DozerProducer extends DefaultProducer {
             LOG.debug("Converting to source model {}.", sourceType);
             Class<?> sourceModel = endpoint.getCamelContext()
                     .getClassResolver().resolveClass(sourceType);
+            if (sourceModel == null) {
+                throw new Exception("Unable to load sourceModel class: " + sourceType);
+            }
             msg.setBody(msg.getBody(sourceModel));
         }
         
@@ -86,6 +89,7 @@ public class DozerProducer extends DefaultProducer {
         // Second pass to process literal mappings
         endpoint.getMapper().map(endpoint.getLiteralMapper(), targetObject);
         // Third pass to process expression mappings
+        endpoint.getExpressionMapper().setCurrentExchange(exchange);
         endpoint.getMapper().map(endpoint.getExpressionMapper(), targetObject);
         msg.setBody(targetObject);
         exchange.setIn(msg);
